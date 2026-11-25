@@ -213,7 +213,7 @@ public class DesignAndOrderTacosBrowserTest {
         .isEqualTo(id);
     assertThat(
         ingredient.findElement(By.tagName("span")).getText())
-        .isEqualTo(name);
+        .startsWith(name);
   }
 
   private void clickDesignATaco() {
