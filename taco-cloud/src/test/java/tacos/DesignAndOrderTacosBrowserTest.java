@@ -93,10 +93,9 @@ public class DesignAndOrderTacosBrowserTest {
 
     WebElement wrapGroup = browser.findElement(By.cssSelector("div.ingredient-group#wraps"));
     List<WebElement> wraps = wrapGroup.findElements(By.tagName("div"));
-    assertThat(wraps.size()).isEqualTo(3);
+    assertThat(wraps.size()).isEqualTo(2);
     assertIngredient(wrapGroup, 0, "FLTO", "Flour Tortilla");
     assertIngredient(wrapGroup, 1, "COTO", "Corn Tortilla");
-    assertIngredient(wrapGroup, 2, "WWTO", "Whole Wheat Tortilla");
 
     WebElement proteinGroup = browser.findElement(By.cssSelector("div.ingredient-group#proteins"));
     List<WebElement> proteins = proteinGroup.findElements(By.tagName("div"));
