@@ -45,8 +45,9 @@ public class DesignAndOrderTacosBrowserTest {
     clickDesignATaco();
     assertDesignPageElements();
     buildAndSubmitATaco("Basic Taco", "FLTO", "GRBF", "CHED", "TMTO", "SLSA");
-    clickBuildAnotherTaco();
+    clickBuildAnotherTacoFromCart();
     buildAndSubmitATaco("Another Taco", "COTO", "CARN", "JACK", "LETC", "SRCR");
+    clickProceedToCheckout();
     fillInAndSubmitOrderForm();
     assertThat(browser.getCurrentUrl()).isEqualTo(homePageUrl());
   }
@@ -57,6 +58,7 @@ public class DesignAndOrderTacosBrowserTest {
     clickDesignATaco();
     assertDesignPageElements();
     buildAndSubmitATaco("Basic Taco", "FLTO", "GRBF", "CHED", "TMTO", "SLSA");
+    clickProceedToCheckout();
     submitEmptyOrderForm();
     fillInAndSubmitOrderForm();
     assertThat(browser.getCurrentUrl()).isEqualTo(homePageUrl());
@@ -68,6 +70,7 @@ public class DesignAndOrderTacosBrowserTest {
     clickDesignATaco();
     assertDesignPageElements();
     buildAndSubmitATaco("Basic Taco", "FLTO", "GRBF", "CHED", "TMTO", "SLSA");
+    clickProceedToCheckout();
     submitInvalidOrderForm();
     fillInAndSubmitOrderForm();
     assertThat(browser.getCurrentUrl()).isEqualTo(homePageUrl());
@@ -93,9 +96,10 @@ public class DesignAndOrderTacosBrowserTest {
 
     WebElement wrapGroup = browser.findElement(By.cssSelector("div.ingredient-group#wraps"));
     List<WebElement> wraps = wrapGroup.findElements(By.tagName("div"));
-    assertThat(wraps.size()).isEqualTo(2);
+    assertThat(wraps.size()).isEqualTo(3);
     assertIngredient(wrapGroup, 0, "FLTO", "Flour Tortilla");
     assertIngredient(wrapGroup, 1, "COTO", "Corn Tortilla");
+    assertIngredient(wrapGroup, 2, "WWTO", "Whole Wheat Tortilla");
 
     WebElement proteinGroup = browser.findElement(By.cssSelector("div.ingredient-group#proteins"));
     List<WebElement> proteins = proteinGroup.findElements(By.tagName("div"));
@@ -104,24 +108,29 @@ public class DesignAndOrderTacosBrowserTest {
     assertIngredient(proteinGroup, 1, "CARN", "Carnitas");
 
     WebElement cheeseGroup = browser.findElement(By.cssSelector("div.ingredient-group#cheeses"));
-    List<WebElement> cheeses = proteinGroup.findElements(By.tagName("div"));
+    List<WebElement> cheeses = cheeseGroup.findElements(By.tagName("div"));
     assertThat(cheeses.size()).isEqualTo(2);
     assertIngredient(cheeseGroup, 0, "CHED", "Cheddar");
     assertIngredient(cheeseGroup, 1, "JACK", "Monterrey Jack");
 
     WebElement veggieGroup = browser.findElement(By.cssSelector("div.ingredient-group#veggies"));
-    List<WebElement> veggies = proteinGroup.findElements(By.tagName("div"));
+    List<WebElement> veggies = veggieGroup.findElements(By.tagName("div"));
     assertThat(veggies.size()).isEqualTo(2);
     assertIngredient(veggieGroup, 0, "TMTO", "Diced Tomatoes");
     assertIngredient(veggieGroup, 1, "LETC", "Lettuce");
 
     WebElement sauceGroup = browser.findElement(By.cssSelector("div.ingredient-group#sauces"));
-    List<WebElement> sauces = proteinGroup.findElements(By.tagName("div"));
+    List<WebElement> sauces = sauceGroup.findElements(By.tagName("div"));
     assertThat(sauces.size()).isEqualTo(2);
     assertIngredient(sauceGroup, 0, "SLSA", "Salsa");
     assertIngredient(sauceGroup, 1, "SRCR", "Sour Cream");
-  }
 
+    WebElement drinkGroup = browser.findElement(By.cssSelector("div.ingredient-group#drinks"));
+    List<WebElement> drinks = drinkGroup.findElements(By.tagName("div"));
+    assertThat(drinks.size()).isEqualTo(2);
+    assertIngredient(drinkGroup, 0, "COLA", "Cola");
+    assertIngredient(drinkGroup, 1, "WATR", "Mineral Water");
+  }
 
   private void fillInAndSubmitOrderForm() {
     assertThat(browser.getCurrentUrl()).startsWith(orderDetailsPageUrl());
@@ -197,8 +206,8 @@ public class DesignAndOrderTacosBrowserTest {
 
   private void assertIngredient(WebElement ingredientGroup,
                                 int ingredientIdx, String id, String name) {
-    List<WebElement> proteins = ingredientGroup.findElements(By.tagName("div"));
-    WebElement ingredient = proteins.get(ingredientIdx);
+    List<WebElement> items = ingredientGroup.findElements(By.tagName("div"));
+    WebElement ingredient = items.get(ingredientIdx);
     assertThat(
         ingredient.findElement(By.tagName("input")).getAttribute("value"))
         .isEqualTo(id);
@@ -212,11 +221,15 @@ public class DesignAndOrderTacosBrowserTest {
     browser.findElement(By.cssSelector("a[id='design']")).click();
   }
 
-  private void clickBuildAnotherTaco() {
-    assertThat(browser.getCurrentUrl()).startsWith(orderDetailsPageUrl());
-    browser.findElement(By.cssSelector("a[id='another']")).click();
+  private void clickBuildAnotherTacoFromCart() {
+    assertThat(browser.getCurrentUrl()).isEqualTo(cartPageUrl());
+    browser.findElement(By.cssSelector("a[href='/design']")).click();
   }
 
+  private void clickProceedToCheckout() {
+    assertThat(browser.getCurrentUrl()).isEqualTo(cartPageUrl());
+    browser.findElement(By.cssSelector("a[href='/orders/current']")).click();
+  }
 
   //
   // URL helper methods
@@ -227,6 +240,10 @@ public class DesignAndOrderTacosBrowserTest {
 
   private String homePageUrl() {
     return "http://localhost:" + port + "/";
+  }
+
+  private String cartPageUrl() {
+    return homePageUrl() + "cart";
   }
 
   private String orderDetailsPageUrl() {
